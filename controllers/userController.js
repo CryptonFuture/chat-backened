@@ -91,14 +91,15 @@ const login = async (req, res) => {
         
    return res.json({ 
         success: true, 
-        token,
-        expiresAt,
         user: { 
             id: user._id, 
             email: user.email,
             username: user.username,
             tokenType: 'Bearer',
-            online: user.online
+            online: user.online,
+            image: user.image,
+            token,
+            expiresAt
         },
             message: 'user create successfully'
          });

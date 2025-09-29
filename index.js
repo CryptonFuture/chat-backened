@@ -96,6 +96,14 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("⚡ New client connected:", socket.id);
 
+  socket.on("typing", (data) => {
+    socket.broadcast.emit("typing", data);
+  });
+
+  socket.on("stopTyping", (data) => {
+    socket.broadcast.emit("stopTyping", data);
+  });
+
   socket.on("private_message", async (msgData) => {
     console.log("📨 Message received:", msgData);
 
