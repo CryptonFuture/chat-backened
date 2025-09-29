@@ -93,6 +93,22 @@ const io = new Server(server, {
    
 // });
 
+// io.on("connection", (socket) => {
+//   console.log("⚡ New client connected:", socket.id);
+
+//   socket.on("private_message", async (msgData) => {
+//     console.log("📨 Message received:", msgData);
+
+//     io.emit("private_message", msgData);
+//   });
+
+//   socket.on("disconnect", () => {
+//     console.log("❌ Client disconnected:", socket.id);
+//   });
+// });
+
+const users = {};
+
 io.on("connection", (socket) => {
   console.log("⚡ New client connected:", socket.id);
 
@@ -102,6 +118,13 @@ io.on("connection", (socket) => {
 
   socket.on("stopTyping", (data) => {
     socket.broadcast.emit("stopTyping", data);
+  })
+
+  socket.on("user_online", (username) => {
+    users[socket.id] = { username, online: true };
+    console.log("✅ User Online:", username);
+
+    io.emit("online_users", Object.values(users));
   });
 
   socket.on("private_message", async (msgData) => {
@@ -111,9 +134,17 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("❌ Client disconnected:", socket.id);
+    if (users[socket.id]) {
+      users[socket.id].online = false;
+      console.log("❌ User Offline:", users[socket.id].username);
+    }
+
+    io.emit("online_users", Object.values(users));
+
+    delete users[socket.id];
   });
 });
+
 
 
 server.listen(port, () => {
